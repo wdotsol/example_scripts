@@ -30,9 +30,6 @@ const orderParams = getMarketOrderParams({
 		auctionDuration: 50,
 });
 ```
- ⁃ auctionDuration – how many slots the auction lasts
- ⁃ auctionStartPrice – the price the auction starts at
- ⁃ auctionEndPrice – the price the auction ends at
 
 For choosing what values to pass in, there are a few ways;
 
