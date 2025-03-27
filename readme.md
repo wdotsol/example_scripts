@@ -35,8 +35,7 @@ For choosing what values to pass in, there are a few ways;
 
 This swift market order example in the uses a 1% offset from the oracle to construct the high price. The potential problem with using the oracle for price input is that it might not reflect the orderbook spread. Another approach would be:
 
-Getting the bid/ask spread from the DLOB server
-Docs: https://drift-labs.github.io/v2-teacher/?typescript#orderbook-trades-dlob-server
+Getting the bid/ask spread from the DLOB server <a href="https://drift-labs.github.io/v2-teacher/?typescript#orderbook-trades-dlob-server">docs</a> 
 Recommended to use the /l2 endpoint for aggregate price levels. Example for SOL-PERP:
 https://dlob.drift.trade/l2?marketName=SOL-PERP
 
