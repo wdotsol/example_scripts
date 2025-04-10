@@ -1,0 +1,37 @@
+# Drift Vaults Overview
+
+Drift Vaults are smart contract-managed trading funds built on the Drift protocol. Each vault is a pooled strategy, where users deposit capital into a single subaccount on Drift, managed by a delegated trader. The vault architecture is designed to give investors exposure to trading strategies while preserving on-chain custody and enforcing transparent fee and share logic.
+
+## Accounts
+
+#### Vault Account (PDA)
+
+The core state of the vault, created using a unique name and seed. It tracks configuration data (fees, permissions, delegate info), total shares, and outstanding withdrawals. It is also the owner of the Drift trading account.
+
+#### VaultDepositor Account (PDA)
+
+Tracks each user’s share balance, fee history, and withdrawal activity. Created per user. In permissionless vaults, it’s initialized on the first deposit; permissioned vaults require manager approval.
+
+#### Vault Token Account
+
+An SPL token account controlled by the vault program. Temporarily holds funds during deposit and withdrawal flows. Funds are moved into or out of Drift via CPI (cross-program invocation).
+
+#### Drift User Account + User Stats
+
+The trading account holding vault funds and open positions. Managed by the vault’s PDA and traded by the delegate. `User Stats` tracks trading activity at the Drift protocol level.
+
+#### Vault Manager
+
+The vault creator. Can configure parameters, initiate fee withdrawals, and (optionally) invest in their own vault. Initially set as the delegate unless specified otherwise.
+
+#### Delegate
+
+The wallet authorized to trade on behalf of the vault. Cannot withdraw funds, only manage trading activity on Drift using delegated permissions.
+
+#### Vault Protocol (Optional)
+
+An optional account for charging platform or protocol fees. Most vaults don’t use this by default.
+
+## Least Ruggable Vault Model
+
+Funds are held by the program, not the manager. The delegate can trade but cannot move funds out. However, users are exposed to strategy and manager risk. Poor or malicious trading decisions can still result in a loss.
