@@ -1,0 +1,22 @@
+# Deposits/Withdrawals
+
+## Deposits
+Users can deposit by calling deposit with the vault address, their wallet (signer), and the amount.
+
+- VaultDepositor;
+Auto-created for permissionless vaults, manually created by the manager for permissioned ones.
+
+- Token Transfer; Funds move from the user wallet → vault token account → Drift subaccount.
+
+- Shares; The user receives vault shares based on current equity. Share issuance maintains price neutrality: new shares = deposit * total_shares / vault_equity.
+
+- Fees; Management fees accrue over time but are “settled” on actions like deposits or withdrawals (dilution via new shares to the manager). Performance fees aren’t taken at deposit but the user’s share price watermark is recorded.
+
+## Withdrawals
+
+Withdrawals involve two steps: request and execution.
+
+- Request Withdraw;  User specifies an amount. The program calculates how many shares this represents and records the request. Shares are earmarked, locking their value and excluding them from future PnL. This prevents front-running of vault performance.
+- Redemption Period;  The user must wait the configured period. The vault may adjust strategy during this time. Users are guaranteed the lesser of the value at request time or at withdrawal time, ensuring fairness.
+- Withdraw Execution;  After the wait, the user calls withdraw. The program checks time, computes final withdrawal value (less of request vs. current value), burns shares, and transfers tokens out via Drift and back to the user.
+Performance fees are deducted here if gains exceeded the user's previous watermark.
