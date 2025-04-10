@@ -1,0 +1,25 @@
+# Vault mechanics
+### Trading via Delegate
+The delegate wallet is authorized to trade from the vault’s Drift account. They cannot withdraw funds, only the vault program can do that.
+Strategies may include perp trading, basis trades, or yield farming. Profits/losses accrue to the vault’s equity, and share price reflects these changes over time.
+The manager may optionally invest their own funds. These are tracked separately and may impact fee logic.
+
+### Liquidation / reduce only
+If a large withdrawal is requested and the vault is highly leveraged, fulfilling it might breach margin requirements.
+
+In this case:
+- Liquidation Delegate:  Temporarily replaces the delegate trader. Can only reduce positions.
+- Reduce-Only Mode:  Vault trades are restricted to closing positions. The liquidator aims to free collateral to fulfill withdrawals.
+- Deadline:  Liquidation control lasts for up to 1 hour. After that, control reverts to the original delegate.
+
+This system ensures that users can exit the vault without relying on the manager.
+
+### Vault shares
+- Vault Equity:  Total value of the vault’s assets.
+- Shares:  Internal accounting units, not tokens. All PnL and fees flow through share accounting.
+- Share Price = Vault Equity / Total Shares  Deposit/withdraw actions mint or burn shares to maintain fair value. Trading performance alters share price.
+- Fees via Share Transfer:
+  -   Management fee: new shares are minted to the manager, diluting other holders.
+  -   Performance fee: shares are reallocated from users to the manager based on profit over watermark.
+- User vs Manager Shares:  Manager shares = total - user - protocol shares. Fees are taken by reallocating shares, not by removing underlying assets directly.
+- Watermark Logic:  Prevents double-charging on volatile apy. Users pay performance fees only on new highs.
