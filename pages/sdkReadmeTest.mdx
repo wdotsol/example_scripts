@@ -277,11 +277,11 @@ licensed as above, without any additional terms or conditions.
 
 ## Frontend Integration Guide
 
-⚠️ Note: This is a temporary workaround for using `@drift-labs/sdk`. The SDK includes imports for Node.js core modules like fs, which aren't available in browsers.
+⚠️ This is a workaround for using `@drift-labs/sdk`. The SDK includes imports for Node.js modules like fs, which aren't available in browsers.
 
 ### Fix
 
-Trying to import the SDK in a frontend app will trigger errors like:
+Trying to import the SDK in a frontend app will lead to errors like:
 ``` Module not found: Can't resolve 'fs' ```
 
 If you're using Next.js, modify your next.config.js to ignore those modules:
