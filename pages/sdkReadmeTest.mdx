@@ -284,7 +284,30 @@ licensed as above, without any additional terms or conditions.
 Trying to import the SDK in a frontend app will lead to errors like:
 ``` Module not found: Can't resolve 'fs' ```
 
-If you're using Next.js, modify your next.config.js to ignore those modules:
+#### Next.js 15 Turbo
+If you're using Next.js 15 Turbo, modify your next.config.js:
+
+```js
+const nextConfig = {
+  experimental: {
+    turbo: {
+      resolveAlias: {
+        fs: { browser: './node-browser-compatibility/index.js' },
+      },
+    },
+  },
+};
+
+module.exports = nextConfig;
+```
+
+Create a file at node-browser-compatibility/index.js with the following content:
+```js
+module.exports = {};
+```
+
+#### Older versions
+If you’re using an older version of Next.js, modify your next.config.js to ignore those modules:
 
 ```js
 const nextConfig = {
@@ -305,6 +328,7 @@ const nextConfig = {
 ```
 
 And modify your package.json like this:
+
 ```js
   "browser": {
     "fs": false,
