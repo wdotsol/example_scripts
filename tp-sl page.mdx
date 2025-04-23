@@ -1,0 +1,139 @@
+# Trigger Orders: Stop Loss & Take Profit
+
+Drift supports trigger-based orders to manage trade exits, using either:
+
+- `OrderType.TRIGGER_MARKET`: Triggers a **Market Order** at the specified price.
+- `OrderType.TRIGGER_LIMIT`: Triggers a **Limit Order** at the specified price.
+
+These are commonly used for Stop Loss orders, and Take profit orders. The following examples are all considered from a long perspective.
+
+For indepth explanation and on how to set up parameters like `reduceOnly`, please refer to: [All Order Types](https://docs.drift.trade/trading/all-order-types)
+
+---
+
+## Stop Loss Orders
+
+### Stop Loss Market
+A Stop Market Order is an order to close the position of a given asset if its Oracle Price reaches the specified Trigger Price. If this happens, the position is closed at Market Price.
+
+#### TypeScript
+
+```ts
+const stopLossMarketOrder = {
+  orderType: OrderType.TRIGGER_MARKET,
+  marketIndex: 0,
+  direction: PositionDirection.SHORT, // closing long
+  baseAssetAmount: driftClient.convertToPerpPrecision(1),
+  triggerPrice: driftClient.convertToPricePrecision(100),
+  reduceOnly: true,
+};
+await driftClient.placePerpOrder(stopLossMarketOrder);
+```
+#### Python
+```python
+stop_loss_limit = OrderParams(
+    order_type=OrderType.TriggerLimit(),
+    market_index=0,
+    direction=PositionDirection.Short(),
+    base_asset_amount=drift_client.convert_to_perp_precision(1),
+    trigger_price=drift_client.convert_to_price_precision(100),
+    price=drift_client.convert_to_price_precision(90),
+    reduce_only=True,
+)
+await drift_client.place_perp_order(stop_loss_limit)
+```
+### Stop Loss Limit
+A Stop Limit Order will only execute where the Oracle Price of a given asset reaches the Trigger Price. If this happens, a Limit Order at the specified Limit Price will be placed.
+Stop Limit Orders also serve as a maximum slippage tolerance for the Stop Order.
+
+#### TypeScript
+```ts
+const stopLossLimitOrder = {
+  orderType: OrderType.TRIGGER_LIMIT,
+  marketIndex: 0,
+  direction: PositionDirection.SHORT, // closing long
+  baseAssetAmount: driftClient.convertToPerpPrecision(1),
+  triggerPrice: driftClient.convertToPricePrecision(100),
+  price: driftClient.convertToPricePrecision(90),
+  reduceOnly: true,
+};
+await driftClient.placePerpOrder(stopLossLimitOrder);
+```
+#### Python
+```python
+stop_loss_limit = OrderParams(
+    order_type=OrderType.TriggerLimit(),
+    market_index=0,
+    direction=PositionDirection.Short(),
+    base_asset_amount=drift_client.convert_to_perp_precision(1),
+    trigger_price=drift_client.convert_to_price_precision(100),
+    price=drift_client.convert_to_price_precision(90),
+    reduce_only=True,
+)
+await drift_client.place_perp_order(stop_loss_limit)
+```
+
+## Take Profit Orders
+
+### Take Profit Market
+
+A Take Profit Order is an order to close the position of a given asset if its Oracle Price reaches the specified Trigger Price. If this happens, the position is closed at Market Price.
+
+#### TypeScript
+```ts
+const takeProfitMarketOrder = {
+  orderType: OrderType.TRIGGER_MARKET,
+  marketIndex: 0,
+  direction: PositionDirection.SHORT, // closing long
+  baseAssetAmount: driftClient.convertToPerpPrecision(1),
+  triggerPrice: driftClient.convertToPricePrecision(200), // take profit trigger
+  reduceOnly: true,
+};
+await driftClient.placePerpOrder(takeProfitMarketOrder);
+```
+
+#### Python
+```python
+take_profit_market = OrderParams(
+    order_type=OrderType.TriggerMarket(),
+    market_index=0,
+    direction=PositionDirection.Short(),
+    base_asset_amount=drift_client.convert_to_perp_precision(1),
+    trigger_price=drift_client.convert_to_price_precision(200),
+    reduce_only=True,
+)
+await drift_client.place_perp_order(take_profit_market)
+```
+
+### Take Profit Limit
+
+A Take Profit Limit Order will only execute where the Oracle Price of a given asset reaches the Trigger Price. If this happens, a Limit Order at the specified Limit Price will be placed.
+Take Profit Limit Orders also serve as a max slippage tolerance for the Stop Order.
+
+#### TypeScript
+``` ts
+const takeProfitLimitOrder = {
+  orderType: OrderType.TRIGGER_LIMIT,
+  marketIndex: 0,
+  direction: PositionDirection.SHORT, // closing long
+  baseAssetAmount: driftClient.convertToPerpPrecision(1),
+  triggerPrice: driftClient.convertToPricePrecision(200),
+  price: driftClient.convertToPricePrecision(200),
+  reduceOnly: true,
+};
+await driftClient.placePerpOrder(takeProfitLimitOrder);
+```
+
+#### Python
+```python
+take_profit_limit = OrderParams(
+    order_type=OrderType.TriggerLimit(),
+    market_index=0,
+    direction=PositionDirection.Short(),
+    base_asset_amount=drift_client.convert_to_perp_precision(1),
+    trigger_price=drift_client.convert_to_price_precision(200),
+    price=drift_client.convert_to_price_precision(200),
+    reduce_only=True,
+)
+await drift_client.place_perp_order(take_profit_limit)
+```
