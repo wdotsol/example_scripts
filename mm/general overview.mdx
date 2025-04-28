@@ -1,0 +1,13 @@
+# General overview
+A market maker places orders on both sides of the market (bid and ask) to capture the spread and provide liquidity. This guide introduces a simple market maker bot for Drift that uses oracle-based limit orders to automatically adjust to market changes.
+
+Oracle limit orders are a special type of limit order whose price is defined relative to an external price feed (oracle) instead of a fixed number. You specify an offset above or below the current oracle price.
+
+For example, placing a long (buy) oracle limit order on SOL-PERP with an offset of -1.0 means you want to buy at $1 below the current SOL oracle price. if the oracle is $100, your bid is $99; if the oracle moves to $99, your bid becomes $98, and so on​.
+
+This keeps your orders near the oracle's value of the asset, which we can assume to be a good representation of the true market price. In trading, oracle-pegged orders help ensure quotes remain favourable, even as on-chain prices fluctuate.
+
+In Drift, market orders and limit orders behave differently. A market order executes immediately against the best available prices in the orderbook. This guarantees a fill but at whatever price is available. In contrast, a limit order is placed at a specific price and will only fill at that price or better.
+For this market maker bot, we use limit orders for both bid and ask quotes.
+
+Keep in mind, we use `OrderType.LIMIT` for all the bot's orders, with oraclePriceOffset flied. `OrderType.ORACLE` is not used in this context because that is used for oracle-triggered market orders, which work differently.
