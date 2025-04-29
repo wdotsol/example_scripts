@@ -1,0 +1,21 @@
+#### Transfer perp position 
+This function allows users to transfer a perpetual position from one sub account to another. 
+Both accounts must belong to the same authority.
+
+#### Typescript
+| Parameter         | Description                                                                  | Optional |
+| ----------------- | ---------------------------------------------------------------------------- | -------- |
+| fromSubAccountId  | The sub-account ID from which the position will be transferred. | No       |         
+| toSubAccountId    | The destination sub-account ID to which the position will be transferred. | No       |         
+| marketIndex       | The index of the market where the position exists.                | No       |         
+| amount            | The amount of the position to transfer between sub-accounts.                 | No       |         
+
+``` Typescript
+//This example transfers a 1 sol position from subaccount 0 to subaccount 1
+await driftClient.transferPerpPosition(  
+      fromSubAccountId: 0,  
+      toSubAccountId: 1,  
+      marketIndex: 0,  
+      amount: driftClient.convertToPerpPrecision(1),
+    );  
+```
