@@ -1,0 +1,100 @@
+## Drift Order Matching 
+
+Order matching begins with the `fulfill_perp_order()` function, which serves as the primary entry point. This function gathers potential maker orders using `get_maker_orders_info()` and determines the best fulfillment strategy by `determine_perp_fulfillment_methods()`.
+
+The auction price ticks per slot(400ms). At each slot, the protocol evaluates whether any available maker or AMM offer satisfies the taker's auction price.
+
+### Sources of Liquidity
+
+Drift's matching engine relies on three sources of liquidity:
+
+- **JIT Liquidity**: Makers providing reactive, slot-specific quotes as response to taker orders (Hidden liquidity)
+- **Resting Orders**: Orders that are resting on the orderbook, can be seen on chain
+- **vAMM**: The protocol-owned automated market maker, used when other sources are unavailable
+
+### The JIT Auction Mechanism
+
+When a taker submits an order, it initiates a Just-In-Time (JIT) auction. This auction follows a Dutch format where the price linearly decreases (or increases depending on direction) from a user-defined start price to an end price over a specified number of slots. Makers can observe this auction and may choose to provide liquidity at any time during the auction window. Fill execution is first-come-first-served among qualifying offers.
+
+If the taker’s order is not filled during the JIT auction phase, it transitions to match against resting DLOB orders. If neither JIT nor DLOB liquidity is sufficient, the protocol falls back to the vAMM.
+
+### Auction Parameters
+
+Each taker order includes specific parameters that define the auction behavior:
+
+- **Auction duration**: Total number of slots the auction runs
+- **Start and end price**: The bounds of the Dutch auction
+- **Limit price**: Maximum or minimum acceptable price after the auction
+- **Max timestamp**: Expiration time of the order
+
+These parameters define a predictable linear price curve over the auction duration, offering a competitive framework for makers to provide optimal prices.
+
+Prices may be expressed as static values or as relative offsets from oracle prices, enabling the system to adapt to market volatility in real time.
+
+### Order Types and Behavior
+
+**Market orders** must have an auction and expiration timestamp. These are designed to be executed quickly and proceed through JIT and potentially AMM liquidity.
+
+**Limit orders** may optionally include auction parameters. During the auction phase, they can only take liquidity. Afterward, they become resting orders that may provide liquidity. Limit orders can also be flagged as post-only.
+
+### Fill Mechanisms
+
+Taker orders may be filled in one of the following ways:
+
+- **Keeper-facilitated fills**: Keeper bots submit transactions that match orders against resting liquidity
+- **Self-fills**: Users submit transactions to fill their own orders
+- **JIT fills**: Makers submit transactions that match orders during the JIT auction window
+
+### DLOB vs. JIT Competition
+
+DLOB orders represent pre-existing, resting liquidity. JIT makers, by contrast, can submit new maker orders after seeing the taker's order. JIT makers benefit from a same-slot advantage: they are allowed to match within the same slot as the taker order, while DLOB makers typically cannot, due to rules preventing self-trading. This structural difference explains why a high proportion of fills are from JIT participants.
+
+However, both DLOB and JIT orders are subject to price validation. A valid race only occurs if both parties offer prices that satisfy the current slot’s auction price. Thus, both speed and price competitiveness are required.
+
+### The Role of the vAMM
+
+The vAMM serves as a backstop, activating when no DLOB or JIT orders are available. It quotes prices centered around the oracle price and adheres to protocol-defined parameters. The vAMM is designed to be non-discriminatory, treating all users equally.
+
+It is incentivized through fee rebates and does not distribute profits to insurance funds but reinvests them into market liquidity. The vAMM will not provide liquidity if the oracle is deemed invalid. Its quoting behavior updates before every potential fill and can be constrained by inventory and protocol thresholds.
+
+In some cases, the vAMM also participates in JIT fills to rebalance risk exposure, particularly when external makers decline to fill undesirable flow. This ensures continued solvency and orderly markets.
+
+### Code References
+
+Relevant source code components include:
+
+- `fulfill_perp_order()` – orders.rs:1678
+- `get_maker_orders_info()` – orders.rs:1123–1139
+- `determine_perp_fulfillment_methods()` – orders.rs:1736–1752
+- `calculate_amm_jit_liquidity()` – logic for vAMM liquidity provision
+- `matching.rs` – includes constraints around same-slot self-trading
+
+### JIT Maker Implementation
+
+To participate in JIT auctions, makers typically operate bots that:
+
+- Monitor new orders with `auctionDuration > 0`
+- Use `programSubscribe` to detect order placements
+- Send transactions quickly using a "JitterShotgun" strategy
+- Configure bidding aggressiveness in basis points
+- Use the `jit-proxy` program to validate on-chain fills
+
+This allows for reactive liquidity provision with lower gas costs and protection against latency arbitrage.
+
+### Advantages of the JIT Auction System
+
+**For takers:**
+
+- Deeper liquidity than AMM-only systems
+- Better pricing through real-time competition
+
+**For makers:**
+
+- Access to consistent on-chain taker flow
+- Simplified infrastructure requirements compared to full CLOBs
+- Fewer risks associated with stale quotes
+- Fee rebates for participation
+
+### Conclusion
+
+Drift Protocol combines elements of traditional order books with innovative auction logic and a protocol-native AMM. The JIT auction mechanism facilitates efficient price discovery and real-time liquidity, while the vAMM ensures baseline market functionality. Together, these components create a decentralized and flexible execution model that balances taker execution quality with maker incentives and system robustness.
