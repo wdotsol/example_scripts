@@ -16,7 +16,7 @@ Drift's matching engine relies on three sources of liquidity:
 
 When a taker submits an order, it initiates a Just-In-Time (JIT) auction. This auction follows a Dutch format where the price linearly decreases (or increases depending on direction) from a user-defined start price to an end price over a specified number of slots. Makers can observe this auction and may choose to provide liquidity at any time during the auction window. Fill execution is first-come-first-served among qualifying offers.
 
-If the taker’s order is not filled during the JIT auction phase, it transitions to match against resting DLOB orders. If neither JIT nor DLOB liquidity is sufficient, the protocol falls back to the vAMM.
+If the taker’s order is not filled during the JIT auction phase, meaning neither JIT nor DLOB liquidity is sufficient, the protocol can also fall back on the vAMM(after 10 slots).
 
 ### Auction Parameters
 
@@ -27,9 +27,9 @@ Each taker order includes specific parameters that define the auction behavior:
 - **Limit price**: Maximum or minimum acceptable price after the auction
 - **Max timestamp**: Expiration time of the order
 
-These parameters define a predictable linear price curve over the auction duration, offering a competitive framework for makers to provide optimal prices.
+These parameters define a predictable linear price curve over the auction duration
 
-Prices may be expressed as static values or as relative offsets from oracle prices, enabling the system to adapt to market volatility in real time.
+Prices may be expressed as static values or as relative offsets from oracle prices, allowing the user/order to adapt to market volatility in real time.
 
 ### Order Types and Behavior
 
@@ -47,17 +47,16 @@ Taker orders may be filled in one of the following ways:
 
 ### DLOB vs. JIT Competition
 
-DLOB orders represent pre-existing, resting liquidity. JIT makers, by contrast, can submit new maker orders after seeing the taker's order. JIT makers benefit from a same-slot advantage: they are allowed to match within the same slot as the taker order, while DLOB makers typically cannot, due to rules preventing self-trading. This structural difference explains why a high proportion of fills are from JIT participants.
+DLOB orders represent pre-existing, resting liquidity. JIT makers, can submit new maker orders after seeing the taker's order. JIT makers benefit from a same-slot advantage: they are allowed to match within the same slot as the taker order, while DLOB makers typically cannot, due to rules preventing self-trading. This difference explains why a high proportion of fills are from JIT participants.
 
 However, both DLOB and JIT orders are subject to price validation. A valid race only occurs if both parties offer prices that satisfy the current slot’s auction price. Thus, both speed and price competitiveness are required.
 
 ### The Role of the vAMM
 
-The vAMM serves as a backstop, activating when no DLOB or JIT orders are available. It quotes prices centered around the oracle price and adheres to protocol-defined parameters. The vAMM is designed to be non-discriminatory, treating all users equally.
-
+The vAMM serves as a backstop, activating when no DLOB or JIT orders are available/sufficient. It quotes prices centered around the oracle price and sticks to protocol-defined parameters. 
 It is incentivized through fee rebates and does not distribute profits to insurance funds but reinvests them into market liquidity. The vAMM will not provide liquidity if the oracle is deemed invalid. Its quoting behavior updates before every potential fill and can be constrained by inventory and protocol thresholds.
 
-In some cases, the vAMM also participates in JIT fills to rebalance risk exposure, particularly when external makers decline to fill undesirable flow. This ensures continued solvency and orderly markets.
+In some cases, the vAMM also participates in JIT fills to rebalance risk exposure, particularly when external makers decline to fill undesirable flow. This ensures continued solvency and smooth markets.
 
 ### Code References
 
