@@ -64,8 +64,9 @@ In some cases, the vAMM also participates in JIT fills to rebalance risk exposur
 Relevant source code components include:
 
 - `fulfill_perp_order()` – orders.rs:1678
-- `get_maker_orders_info()` – orders.rs:1123–1139
-- `determine_perp_fulfillment_methods()` – orders.rs:1736–1752
+also in math https://github.com/drift-labs/protocol-v2/blob/master/programs/drift/src/math/fulfillment.rs#L16
+- `get_maker_orders_info()` – orders.rs:1123–1139 https://github.com/drift-labs/protocol-v2/blob/master/programs/drift/src/controller/orders.rs#L1123-L1139
+- `determine_perp_fulfillment_methods()` – orders.rs:1736–1752 https://github.com/drift-labs/protocol-v2/blob/master/programs/drift/src/controller/orders.rs#L1719-L1735
 - `calculate_amm_jit_liquidity()` – logic for vAMM liquidity provision
 - `matching.rs` – includes constraints around same-slot self-trading
 
