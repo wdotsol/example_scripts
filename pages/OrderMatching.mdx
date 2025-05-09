@@ -14,7 +14,7 @@ Drift's matching engine relies on three sources of liquidity:
 
 ### The JIT Auction Mechanism
 
-When a taker submits an order, it initiates a Just-In-Time (JIT) auction. This auction follows a Dutch format where the price linearly decreases (or increases depending on direction) from a user-defined start price to an end price over a specified number of slots. Makers can observe this auction and may choose to provide liquidity at any time during the auction window. Fill execution is first-come-first-served among qualifying offers.
+When a taker submits an order, it initiates a Just-In-Time (JIT) auction. This auction follows a Dutch format where the price linearly decreases (or increases depending on direction) from a user-defined start price to an end price over a specified number of slots. Makers can observe this auction and may choose to provide liquidity at any time during the auction window. Fill execution is fcfs among offers.
 
 If the taker’s order is not filled during the JIT auction phase, meaning neither JIT nor DLOB liquidity is sufficient, the protocol can also fall back on the vAMM(after 10 slots).
 
@@ -27,7 +27,7 @@ Each taker order includes specific parameters that define the auction behavior:
 - **Limit price**: Maximum or minimum acceptable price after the auction
 - **Max timestamp**: Expiration time of the order
 
-These parameters define a predictable linear price curve over the auction duration
+These parameters define a linear price curve over the auction duration
 
 Prices may be expressed as static values or as relative offsets from oracle prices, allowing the user/order to adapt to market volatility in real time.
 
@@ -53,10 +53,10 @@ However, both DLOB and JIT orders are subject to price validation. A valid race 
 
 ### The Role of the vAMM
 
-The vAMM serves as a backstop, activating when no DLOB or JIT orders are available/sufficient. It quotes prices centered around the oracle price and sticks to protocol-defined parameters. 
-It is incentivized through fee rebates and does not distribute profits to insurance funds but reinvests them into market liquidity. The vAMM will not provide liquidity if the oracle is deemed invalid. Its quoting behavior updates before every potential fill and can be constrained by inventory and protocol thresholds.
+The vAMM serves as a backstop, activating when no DLOB or JIT orders are available/sufficient. It quotes prices centered around the oracle price and sticks to defined parameters. 
+It is incentivized through fee rebates and does not distribute profits to insurance funds but reinvests them into market liquidity. The vAMM will not provide liquidity if the oracle is invalid/stale. Its quoting behavior updates before every potential fill and can be limited by inventory and protocol thresholds.
 
-In some cases, the vAMM also participates in JIT fills to rebalance risk exposure, particularly when external makers decline to fill undesirable flow. This ensures continued solvency and smooth markets.
+In some cases, the vAMM also participates in JIT fills to rebalance risk exposure, for example when external makers decline to fill undesirable flow. This ensures continued solvency and smooth markets.
 
 ### Code References
 
@@ -68,30 +68,3 @@ also in math https://github.com/drift-labs/protocol-v2/blob/master/programs/drif
 - `determine_perp_fulfillment_methods()` – orders.rs:1736–1752 https://github.com/drift-labs/protocol-v2/blob/master/programs/drift/src/controller/orders.rs#L1719-L1735
 - `calculate_amm_jit_liquidity()` – logic for vAMM liquidity provision
 - `matching.rs` – includes constraints around same-slot self-trading
-
-### JIT Maker Implementation
-
-To participate in JIT auctions, makers typically operate bots that:
-
-- Monitor new orders with `auctionDuration > 0`
-- Use `programSubscribe` to detect order placements
-- Send transactions quickly using a "JitterShotgun" strategy
-- Configure bidding aggressiveness in basis points
-- Use the `jit-proxy` program to validate on-chain fills
-
-This allows for reactive liquidity provision with lower gas costs and protection against latency arbitrage.
-
-### Advantages of the JIT Auction System
-
-**For takers:**
-
-- Deeper liquidity than AMM-only systems
-- Better pricing through real-time competition
-
-**For makers:**
-
-- Access to consistent on-chain taker flow
-- Simplified infrastructure requirements compared to full CLOBs
-- Fewer risks associated with stale quotes
-- Fee rebates for participation
-
