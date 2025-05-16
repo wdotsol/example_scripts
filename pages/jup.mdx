@@ -1,0 +1,69 @@
+# Jupiter Swap Integration Guide
+
+## Overview
+Drift integrates Jupiter to provide optimal token swap routing on Solana. The `JupiterClient` class in the Drift SDK acts as the bridge to Jupiter’s quote and swap APIs. This can be found at https://github.com/drift-labs/protocol-v2/blob/master/sdk/src/jupiter/jupiterClient.ts
+
+## Requirements
+
+- Solana wallet and keypair
+- RPC connection to Solana (mainnet-beta or devnet)
+- Drift SDK
+
+## 1. Initialize the Jupiter Client
+
+```ts
+import { Connection } from '@solana/web3.js';
+import { JupiterClient } from '@drift-labs/sdk';
+
+const connection = new Connection('https://api.mainnet-beta.solana.com');
+const jupiterClient = new JupiterClient({ connection });
+// Optional: pass a custom Jupiter API endpoint via `url`
+```
+
+## 2. Get a Quote
+
+```ts
+const quote = await jupiterClient.getQuote({  
+  inputMint: driftClient.getSpotMarketAccount(0)!.mint,  
+  outputMint: driftClient.getSpotMarketAccount(1)!.mint,  
+  amount: driftClient.convertToSpotPrecision(0, 10),  
+  slippageBps: 50,  
+  onlyDirectRoutes: false,  
+  autoSlippage: false  
+});  
+```
+
+**Optional parameters** include:
+- `excludeDexes`: `['Orca', 'Raydium']`
+- `swapMode`: `'ExactIn' | 'ExactOut'`
+- `autoSlippage`: `true` for Jupiter-estimated slippage
+- `usdEstimate`: estimate for slippage collision (used with `autoSlippage`)
+- `maxAccounts`: cap on the number of accounts in quote response
+
+## 3. Execute the Swap
+
+```ts
+const swapTransaction = await jupiterClient.getSwap({  
+  quote,  
+  userPublicKey: wallet.publicKey,  
+  slippageBps: 50  
+});  
+      
+// Sign and send the transaction  
+swapTransaction.sign([keypair]);
+const signature = await connection.sendTransaction(swapTransaction);
+console.log(`Swap executed with tx: ${signature}`);
+```
+
+**Note:** The `getSwap` method returns a `VersionedTransaction`. In production, sign using your wallet adapter or provider.
+
+## Additional Features
+
+- **Filter to Direct Routes**  
+  Use `onlyDirectRoutes: true` to avoid routed swaps through intermediary tokens.
+
+- **DEX Exclusion**  
+  Use `excludeDexes: string[]` to prevent routing through certain DEXes.
+
+- **Automatic Slippage Calculation**  
+  Enable with `autoSlippage: true`, optionally setting `maxAutoSlippageBps`.
