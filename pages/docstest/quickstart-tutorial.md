@@ -50,4 +50,4 @@ In this quickstart, you’ll place a simple perp trade on Devnet in under five m
    console.log(positionInfo);
    ```
 
-Congratulations—you’ve made your first programmatic trade! 🎉
+Congratulations, you’ve made your first trade on Drift! 
