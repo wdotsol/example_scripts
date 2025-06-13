@@ -25,7 +25,7 @@ To set up your local development environment:
    ```bash
    export DRIFT_RPC_URL=https://api.mainnet-beta.solana.com
    ```
-   > **Note:** For production, we recommend using a dedicated RPC (e.g., QuickNode, Alchemy). Avoid public endpoints for reliability.
+   > **Note:** For production, we recommend using a dedicated RPC (Helius, Triton, QuickNode). Avoid public endpoints for reliability.
 4. **Set program IDs.**  
    Drift program IDs (mainnet-beta):  
    | Environment    | Program ID                                                       | UI                         |
