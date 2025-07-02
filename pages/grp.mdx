@@ -1,0 +1,43 @@
+```ts
+// Import required types and classes  
+import {   
+  DriftClient,   
+  DriftClientConfig,   
+  GrpcConfigs,  
+  User,  
+  UserConfig   
+} from '@drift-labs/sdk';  
+  
+// Configure gRPC connection  
+const grpcConfigs: GrpcConfigs = {  
+  endpoint: process.env.GRPC_ENDPOINT,  
+  // additional authentication if needed  
+};  
+  
+// Configure DriftClient with gRPC  
+const driftClientConfig: DriftClientConfig = {  
+  connection: connection,  
+  wallet: wallet,  
+  accountSubscription: {  
+    type: 'grpc',  
+    grpcConfigs: grpcConfigs  
+  }  
+};  
+  
+// Initialize client  
+const driftClient = new DriftClient(driftClientConfig);  
+await driftClient.subscribe();  
+  
+// Optional: Configure User with gRPC as well  
+const userConfig: UserConfig = {  
+  driftClient: driftClient,  
+  userAccountPublicKey: userPublicKey,  
+  accountSubscription: {  
+    type: 'grpc',  
+    grpcConfigs: grpcConfigs  
+  }  
+};  
+  
+const user = new User(userConfig);  
+await user.subscribe();
+```
