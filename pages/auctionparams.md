@@ -2,24 +2,31 @@
 
 The `/auctionParams` endpoint is designed to provide SDK users with recommended auction parameters for market orders, similar to the logic used in the Drift UI.
 
-### Endpoint
-
+### URL
 ```
-GET /auctionParams
+https://dlob.drift.trade/auctionParams
 ```
 
 ### Query Parameters
 
-| Name              | Type    | Required | Description                                                                                     |
-| ----------------- | ------- | -------- | ----------------------------------------------------------------------------------------------- |
-| `marketIndex`     | int     | Yes      | Index of the market to trade.                                                                   |
-| `marketType`      | string  | Yes      | Market type                                                              |
-| `direction`       | string  | Yes      | Order direction: `long` or `short`.                                                             |
-| `amount`          | number  | Yes      | The order size. Interpreted as to `assetType` field
-| `assetType`       | string  | Yes      | One of: `base`, `quote`. Specifies the asset the `amount` refers to.                            |
-| `auctionDuration` | int     | Optional | (Default: UI default) Duration of the auction    |
-| `reduceOnly`      | boolean | Optional | (Default: false) If true, order will only reduce existing position.                             |
-
+| Name                  | Type     | Required | Description                                                                                |
+| --------------------- | -------- | -------- | ------------------------------------------------------------------------------------------ |
+| `marketIndex`         | int      | Yes      | Index of the market to trade.                                                              |
+| `marketType`          | string   | Yes      | Market type: `perp`, `spot`, etc.                                                         |
+| `direction`           | string   | Yes      | Order direction: `long` or `short`.                                                        |
+| `amount`              | number   | Yes      | The order size. Interpreted as to `assetType` field.                                       |
+| `assetType`           | string   | Yes      | One of: `base`, `quote`. Specifies the asset the `amount` refers to.                       |
+| `auctionDuration`     | int      | Optional | (Default: UI default) Duration of the auction.                                             |
+| `reduceOnly`          | boolean  | Optional | (Default: false) If true, order will only reduce existing position.                        |
+| `allowInfSlippage`    | boolean  | Optional | If true, disables slippage checks.                                             |
+| `slippageTolerance`   | number   | Optional | Maximum acceptable slippage for the order.                                                 |
+| `isOracleOrder`       | boolean  | Optional | Use oracle-based order pricing.                                                            |
+| `auctionStartPriceOffset`      | number| Optional | Price offset for auction start.                    |
+| `auctionEndPriceOffset`        | number    | Optional | Price offset for auction end.                         |
+| `auctionStartPriceOffsetFrom`  | string| Optional | Reference price for auction start offset.           |
+| `auctionEndPriceOffsetFrom`    | string    | Optional | Reference price for auction end offset.               |
+| `additionalEndPriceBuffer`     | string    | Optional | Additional buffer at auction end             |
+| `userOrderId`         | int      | Optional | User order ID.                                                           |
 ### Sample Request
 
 ```http
