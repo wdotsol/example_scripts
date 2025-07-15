@@ -30,7 +30,7 @@ https://dlob.drift.trade/auctionParams
 ### Sample Request
 
 ```http
-GET /auctionParams?marketIndex=0&marketType=perp&direction=long&amount=100&assetType=base&auctionDuration=45&reduceOnly=true
+GET https://dlob.drift.trade/auctionParams?marketIndex=0&marketType=perp&direction=long&amount=100&assetType=base&auctionDuration=45&reduceOnly=true
 ```
 
 ### Sample Response
