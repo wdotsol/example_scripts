@@ -27,10 +27,14 @@ https://dlob.drift.trade/auctionParams
 | `auctionEndPriceOffsetFrom`    | string    | Optional | Reference price for auction end offset.               |
 | `additionalEndPriceBuffer`     | string    | Optional | Additional buffer at auction end             |
 | `userOrderId`         | int      | Optional | User order ID.                                                           |
+
+#### Note: 
+The `amount` will need to be in base precision (ie9) or quote precision (ie6), depending on the `assetType` defined.
+
 ### Sample Request
 
 ```http
-GET https://dlob.drift.trade/auctionParams?marketIndex=0&marketType=perp&direction=long&amount=100&assetType=base&auctionDuration=45&reduceOnly=true
+GET https://dlob.drift.trade/auctionParams?marketIndex=0&marketType=perp&direction=long&amount=100000000&assetType=base&auctionDuration=45&reduceOnly=true
 ```
 
 ### Sample Response
