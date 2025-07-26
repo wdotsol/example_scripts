@@ -1,0 +1,77 @@
+# Position History Endpoint
+
+Retrieve position closing trade records accumulated by orderId for a specific account, with optional pagination. Results are ordered from newest to oldest, with up to 20 unique orders per request.
+
+- **Endpoint:**  
+  `GET /user/{accountId}/positions`
+- **Base URL:**  
+  `https://data.api.drift.trade`
+
+## Request
+
+**Path Parameter:**
+
+| Name        | Type   | Description                       |
+|-------------|--------|-----------------------------------|
+| `accountId` | string | The user account identifier.      |
+
+## Example Request
+
+```http
+GET /user/{accountId}/positions
+```
+## Response
+```
+{
+  "success": true,
+  "records": [
+    {
+      "ts": 0,
+      "txSig": "string",
+      "txSigIndex": 0,
+      "slot": 0,
+      "fillerReward": "string",
+      "baseClosedForPnl": "string",
+      "baseAssetAmountFilled": "string",
+      "quoteAssetAmountFilled": "string",
+      "takerFee": "string",
+      "makerRebate": "string",
+      "referrerReward": "string",
+      "quoteAssetAmountSurplus": "string",
+      "takerOrderBaseAssetAmount": "string",
+      "takerOrderCumulativeBaseAssetAmountFilled": "string",
+      "takerOrderCumulativeQuoteAssetAmountFilled": "string",
+      "makerOrderBaseAssetAmount": "string",
+      "makerOrderCumulativeBaseAssetAmountFilled": "string",
+      "makerOrderCumulativeQuoteAssetAmountFilled": "string",
+      "oraclePrice": "string",
+      "makerFee": "string",
+      "action": "string",
+      "actionExplanation": "string",
+      "marketIndex": 0,
+      "marketType": "string",
+      "marketFilter": "string",
+      "filler": "string",
+      "fillRecordId": "string",
+      "taker": "string",
+      "takerOrderId": "string",
+      "takerOrderDirection": "string",
+      "maker": "string",
+      "makerOrderId": "string",
+      "makerOrderDirection": "string",
+      "spotFulfillmentMethodFee": "string",
+      "userFee": "string",
+      "user": "string",
+      "symbol": "string",
+      "bitFlags": 0,
+      "takerExistingQuoteEntryAmount": "string",
+      "takerExistingBaseAssetAmount": "string",
+      "makerExistingQuoteEntryAmount": "string",
+      "makerExistingBaseAssetAmount": "string"
+    }
+  ],
+  "meta": {
+    "nextPage": "string"
+  }
+}
+```
