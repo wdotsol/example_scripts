@@ -1,0 +1,40 @@
+# Drift Builder Codes
+
+## Overview
+
+Drift’s Builder Code (DBC) system enables any builder to build on top of Drift **while earning fees** for routing trades.
+
+Drift Builder Codes establish the financial infrastructure layer on Solana, by allowing anyone tap into Drift’s deep liquidity and efficient execution, without building their own backend. This enables a fully open, composable UI layer for perps and spot on Solana.
+
+This Builder Code system makes Drift the first on-chain DEX on Solana to offer **per order monetization** for third-party frontends, setting the stage for a permissionless ecosystem of apps, bots, and aggregators all aligned with Drift and Solana’s liquidity growth. 
+
+## User Approval
+
+- **Onboarding:**  
+  Before placing any orders, users must approve the builder and the maximum allowed builder fee.  
+  This creates or updates the user's `ApprovedBuildersMap` account.
+
+## Reward Accrual & Settlement Flow
+
+1. **Order Placement**
+   - Builder’s app creates a `place_order` transaction, specifying:
+     - Builder’s public key
+     - Fee parameters (up to the user-approved max)
+
+2. **Fee Accrual (Per Order)**
+   - When an order is filled, the builder’s fee for that order is **credited to the user-owned RevenueShare escrow account**.
+   - Funds accumulate in escrow.
+
+3. **Settlement (SettlePnl)**
+   - When the user calls `SettlePnl`, any pending builder rewards are swept from the RevenueShare escrow to the builder’s RevenueShare account.
+   - The builder and/or referrer can then move these rewards into their Drift account positions using `settle_revenue_share`.
+
+## Transaction Flow
+
+1. **User approves builder and max fee.**
+2. **User places order via builder app.**
+3. **Order is filled:**  
+   - Builder fee for this order accrues to the RevenueShare escrow.
+4. **User calls `SettlePnl`:**  
+   - All pending builder rewards for this user are swept to the builder’s account.
+5. **Builder/referrer claim rewards via `settle_revenue_share`.**
