@@ -1,4 +1,10 @@
+import { Callout } from "nextra-theme-docs";
+
 # Drift Builder Codes
+
+<Callout type="info" emoji="ℹ️">
+Drift Builder Codes are currently in **private beta**. If you're interested in participating or learning more, please reach out to the Drift team.
+</Callout>
 
 ## Overview
 
@@ -8,33 +14,46 @@ Drift Builder Codes establish the financial infrastructure layer on Solana, by a
 
 This Builder Code system makes Drift the first on-chain DEX on Solana to offer **per order monetization** for third-party frontends, setting the stage for a permissionless ecosystem of apps, bots, and aggregators all aligned with Drift and Solana’s liquidity growth. 
 
-## User Approval
+### Getting started with DBC
 
-- **Onboarding:**  
-  Before placing any orders, users must approve the builder and the maximum allowed builder fee.  
-  This creates or updates the user's `ApprovedBuildersMap` account.
+- **Builder Registration:**
+In order to receive fees, builders are required to have an existing Drift account. 
 
-## Reward Accrual & Settlement Flow
+- **User Onboarding:**  
+Before placing any orders, users must approve the builder and the maximum allowed builder fee.  
+This creates or updates the user's `ApprovedBuildersMap` account.
 
-1. **Order Placement**
-   - Builder’s app creates a `place_order` transaction, specifying:
-     - Builder’s public key
-     - Fee parameters (up to the user-approved max)
+### How Builder Codes Work
 
-2. **Fee Accrual (Per Order)**
-   - When an order is filled, the builder’s fee for that order is **credited to the user-owned RevenueShare escrow account**.
-   - Funds accumulate in escrow.
+1. **Order Placement**  
+   The builder’s app constructs a `place_order` transaction, specifying the builder’s public key and fee (up to the user-approved max).  
+   The user’s `ApprovedBuildersMap` and `RevenueShareEscrow` are included for program verification.
 
-3. **Settlement (SettlePnl)**
-   - When the user calls `SettlePnl`, any pending builder rewards are swept from the RevenueShare escrow to the builder’s RevenueShare account.
-   - The builder and/or referrer can then move these rewards into their Drift account positions using `settle_revenue_share`.
+2. **Fee Accrual (Per Order)**  
+   When an order is filled, the builder’s fee is credited per-order into the user’s `RevenueShareEscrow` account. Funds accumulate here until settlement.
 
-## Transaction Flow
+3. **Settlement**  
+   When the user calls `SettlePnl`, all pending builder rewards are swept from their escrow to the respective builder’s `RevenueShare` account(s).  
+   Builders/referrers then move these rewards into their Drift account positions with `settle_revenue_share`.
 
-1. **User approves builder and max fee.**
-2. **User places order via builder app.**
-3. **Order is filled:**  
-   - Builder fee for this order accrues to the RevenueShare escrow.
-4. **User calls `SettlePnl`:**  
-   - All pending builder rewards for this user are swept to the builder’s account.
-5. **Builder/referrer claim rewards via `settle_revenue_share`.**
+### Notes on builder codes for MM’s
+
+**RevenueShareEscrow Inclusion:**  Fillers and market makers must include the user’s `RevenueShareEscrow` account in every order fill transaction. This PDA is derived from the user’s pubkey (requires no additional RPC calls).
+
+**Multi Builder Support:**  Users can approve multiple builders, so MM’s may see multiple builder accounts to sweep to during `SettlePnl`. The protocol will not throw if a specific builder is omitted, but all filled rewards must eventually be swept.
+
+**Error Handling:**  If a required escrow account isn’t included, the program will throw. Therefore it's recommended to always include it.
+
+**Potential optimization:**  MM’s can pre-compute user > escrow account mappings to optimize tx size and speed.
+
+### FAQ
+
+**Q: Can a user approve multiple builders?**  
+A: Yes, users can have multiple builders in their `ApprovedBuildersMap`, each with a specified max fee. Orders can be routed through any approved builder.
+
+**Q: How are builder fees capped?**  
+A: A: The protocol enforces the user-approved max fee per builder. Attempts to go over will result in a transaction failure.
+
+**Q: Do MM’s or fillers need to know the builder/referrer accounts for every order?**  
+A: No, but including the `RevenueShareEscrow` is required to process reward accrual and settlement.
+
