@@ -1,0 +1,40 @@
+# Drift Collateral Rewards
+
+At Drift, we're exploring a new approach to incentives. 
+
+Starting with syrupUSDC, we directly incentivize **traders who open perp positions using their deposited collateral**.  
+This ensures rewards are tied to both providing liquidity and taking active trading positions.
+
+## SyrupUSDC
+
+SyrupUSDC, the liquid yield-generating stablecoin from Maple Finance, is now supported as collateral on Drift.  
+To celebrate the listing, we're launching a **$100,000 incentives program** for traders who use syrupUSDC as collateral to open positions.
+
+- **Total rewards:** $100,000 USDC  
+- **Week 1 distribution:** $12,500 USDC  
+
+For additional info, please see the [Maple blogpost](https://maple.finance/insights/syrupusdc-drift-protocol-perps-collateral-yield-bearing-margin)
+
+## How Rewards Work
+
+**Deposit syrupUSDC as collateral** for an active perpetual position to start earning rewards.
+
+- Incentives accrue continuously and are distributed among participants who meet **both** criteria:
+  1. Have syrupUSDC deposited as collateral.
+  2. Maintain an active perpetual position.
+
+Your share of rewards is based on:
+
+```
+min(deposited syrupUSDC, open perp notional)
+```
+
+This means rewards are aligned with both your syrupUSDC balance and your trading activity.
+
+## Maximizing Rewards
+
+To earn the most from incentives:
+
+- Keep your **open interest (OI)** in perpetuals **higher** than your deposited syrupUSDC balance.
+- Maintain active positions during the reward cycle to maximize accrual.
+- Monitor your collateral and notional exposure to avoid being capped by the `min()` rule above.
