@@ -1,0 +1,106 @@
+# MM Oracle Integration
+
+The MM Oracle is a permissioned variant of the existing Pyth Laser oracle feed, designed to deliver faster and more reliable pricing directly to the AMM in perp markets.
+
+Instead of using the permissionless oracle crank that updates a separate oracle account, the MM Oracle writes prices directly to the AMM struct on the perp market account.
+
+This update is introduced to address arbitrageurs that were paying high priority fees to get trades executed before our permissionless oracle crank landed, taking advantage of stale quotes.
+
+The MM Oracle solves this by:
+
+- **Reducing update cost**: **1,000 CUs** per update vs **15k–20k CUs** for permissionless updates.
+- **Improving tx landing priority**: Lower CU transactions are prioritized by the Solana scheduler.
+- **Providing fresher vAMM quotes**, making it harder for arbers to pick off the vAMM.
+
+Because the MM Oracle uses the **same underlying price source** as the exchange oracle, it is also safe and beneficial for **oracle orders**. The program always compares MM vs exchange oracles and uses whichever is most recent.
+
+From an SDK perspective:
+
+- DLOB and math functions now require calling **`getMMOracleDataForPerpMarket`** for perp markets instead of **`getOracleDataForPerpMarket`**.
+- Without migration, existing code will break if updated to the new SDK. This guide explains exactly what to change so your integration continues working
+
+[https://github.com/drift-labs/protocol-v2/pull/1806/files](https://github.com/drift-labs/protocol-v2/pull/1806/files)
+
+## What is the MM Oracle?
+
+- Same feed, **permissioned** admin instruction writes to AMM (`mmOraclePrice`, `mmOracleSlot`).
+- Used for **vAMM quotes** and **oracle orders** limit prices.
+- On-chain program compares exchange vs MM and chooses the **more recent**.
+
+### Type
+
+```tsx
+// sdk/src/oracles/types.ts
+export type MMOraclePriceData = Omit<
+  OraclePriceData,
+  'twap' | 'twapConfidence' | 'maxPrice'
+> & {
+  isMMOracleActive: boolean;
+};
+```
+
+### Retrieving the oracle
+
+```tsx
+// sdk/src/driftClient.ts
+const mmOracle = driftClient.getMMOracleDataForPerpMarket(marketIndex);
+const spotOracle = driftClient.getOracleDataForSpotMarket(marketIndex);
+```
+
+## Updated Parameters examples
+
+### Math functions
+
+```tsx
+export function calculateBaseAssetAmountForAmmToFulfill(
+	order: Order,
+	market: PerpMarketAccount,
+	mmOraclePriceData: MMOraclePriceData,
+	slot: number
+):
+```
+
+### Funding functions
+
+Some funding functions take **both** oracle types as **separate optional parameters**:
+
+```tsx
+// sdk/src/math/funding.ts
+calculateAllEstimatedFundingRate(
+  market: PerpMarketAccount,
+  mmOraclePriceData?: MMOraclePriceData,
+  oraclePriceData?: OraclePriceData,
+  markPrice?: BN,
+  now?: BN
+):
+```
+
+### DLOB functions
+
+DLOB methods use  `T extends MarketType` and a **conditional** to require the correct oracle **based on market**. You pass **one** oracle object; the type is enforced from `marketType`.
+
+```tsx
+public findNodesToFill<T extends MarketType>(
+		marketIndex: number,
+		fallbackBid: BN | undefined,
+		fallbackAsk: BN | undefined,
+		slot: number,
+		ts: number,
+		marketType: T,
+		oraclePriceData: T extends { spot: unknown }
+			? OraclePriceData
+			: MMOraclePriceData,
+		stateAccount: StateAccount,
+		marketAccount: T extends { spot: unknown }
+			? SpotMarketAccount
+			: PerpMarketAccount
+	):
+```
+
+## TLDR
+
+- **MM Oracle**: permissioned price path writing directly to `PerpMarketAccount.amm` (same source as exchange oracle), **1k CUs** results in better landing priority.
+- Program always uses the **fresher** of exchange oracle vs MM oracle; SDK exposes both.
+- **Most DLOB & math functions** now take a param `MMOraclePriceData` , some **funding** helpers accept **both** oracle objects
+
+For context, the PR branch can be found here: [https://github.com/drift-labs/protocol-v2/pull/1806/files](https://github.com/drift-labs/protocol-v2/pull/1806/files)
