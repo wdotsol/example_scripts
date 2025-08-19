@@ -363,9 +363,9 @@ let maker_rebate = fill_quote_asset_amount
 - Enhanced rebates for liquidation fills
 - Risk management through position limits
 
-## Performance & Determinism
+## Performance + optimalizations
 
-### Compute Unit Hotspots
+### Compute Unit improvements.
 
 **Auction Price Calculation** (math/auction.rs:75-100)
 - Linear interpolation per slot
@@ -406,7 +406,7 @@ let maker_rebate = fill_quote_asset_amount
 - Price improvement strategies
 - Risk management enforcement
 
-## Operational & Testing Notes
+## Ops
 
 ### Crank/Bot Processes
 
@@ -426,7 +426,7 @@ let maker_rebate = fill_quote_asset_amount
 # Manage risk exposure
 ```
 
-### Test Files
+### Tests
 
 **JIT Tests** (controller/orders/amm_jit_tests.rs:1-3094)
 - AMM JIT participation scenarios
@@ -463,7 +463,7 @@ let maker_rebate = fill_quote_asset_amount
 
 ## Open Questions / TODOs
 
-### Implementation Ambiguities
+### Implementation
 
 **JIT Intensity Scaling** (math/amm_jit.rs:58-66)
 - Exact formula for intensity-based scaling unclear
@@ -477,7 +477,7 @@ let maker_rebate = fill_quote_asset_amount
 - Specific conditions for MM vs exchange oracle selection
 - Staleness threshold values need verification
 
-### Known Limitations
+### Limitations
 
 **Same-Slot Self-Trading** (instructions/keeper.rs:668-672)
 - JIT makers cannot fill their own orders
@@ -491,7 +491,7 @@ let maker_rebate = fill_quote_asset_amount
 - Intensity-based participation may be suboptimal
 - No dynamic adjustment based on market conditions
 
-## Citations
+## Citations to check the github code
 
 Throughout this document, code references follow the format `(path:lineStart-lineEnd)`:
 
