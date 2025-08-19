@@ -1,0 +1,75 @@
+# Drift Protocol: Introduction for Market Makers and Builders
+
+This guide is designed for experienced traders or builders who want to quickly go from **0 to 1** with Drift. It covers the essentials: Drift’s matching engine, Just-in-Time (JIT) liquidity, and Swift Protocol.
+
+---
+
+## Core Concepts
+
+### Drift Matching Engine
+- Drift uses a **Dutch auction** for taker orders.
+- Orders specify:
+  - **Auction duration** (in slots, ~400ms each)
+  - **Start and end price** (defines a linear curve)
+  - **Limit price** (final resting price after auction)
+- Sources of liquidity:
+  1. **Resting orders** on Drift’s DLOB (decentralized limit order book)
+  2. **JIT liquidity** (makers reacting within the auction)
+  3. **AMM backstop** (guaranteed fill after 10 slots if needed)
+
+### Just-in-Time (JIT) Liquidity
+- Makers can place **reactive orders** during auctions, not resting in the book.
+- Workflow:
+  - Maker listens for new taker order (via on-chain events or Swift)
+  - Submits a transaction that *places and fills* instantly
+  - Any leftover is cancelled atomically
+- Benefits:
+  - **Takers**: better prices, deeper liquidity
+  - **Makers**: no need to constantly rest orders; reduced adverse selection
+
+---
+
+## Swift Protocol
+
+Swift is an **off-chain extension** of Drift that makes order propagation faster and gasless.
+
+### How it Works
+1. **User signs an order off-chain**
+2. **Swift Node broadcasts** to market makers via WebSocket
+3. Makers/keepers race to submit the fill on-chain
+4. On-chain program verifies the signature and executes the trade
+
+### Advantages
+- **Lower latency**: makers get orders instantly (WebSocket vs waiting for block confirmation)
+- **Gasless for takers**: makers/keepers pay transaction fees
+- **Easier integration**: makers use a familiar WebSocket API
+- **DRIFT staking priority**: stakers may see orders up to 1s earlier
+
+---
+
+## Integration Roadmap for Makers
+
+1. **Connect to Swift feed** (WebSocket via SDKs)
+2. **Listen for taker orders** (market orders via Swift, or auctions on-chain)
+3. **Compute your quote** (price/size competitive with auction curve + AMM)
+4. **Submit atomic fill tx** (place taker order + your maker order)
+5. **Handle errors**:
+   - `OrderNotFound`: someone else filled first
+   - `Bid/AskNotCrossed`: your price didn’t meet auction curve
+6. **Monitor performance**: optimize latency, quote logic, and consider staking DRIFT
+
+---
+
+## Quick Start Checklist
+
+- [x] Install Drift SDK (TS/Python/Rust)
+- [x] Connect to Swift Node (test on devnet first)
+- [x] Implement simple pricing logic
+- [x] Use SDK helpers (JIT Proxy) for atomic fills
+- [x] Test fills, handle errors, cancel leftovers
+- [x] Optimize infra + fees for speed
+- [x] Stake DRIFT for priority access
+
+---
+
+**In short:** Drift combines **auctions + JIT liquidity + Swift** to deliver fast, deep, gasless trading on Solana. If you’re familiar with trading, plug into Swift and start competing in auctions—you’ll be live as a Drift market maker within hours.
