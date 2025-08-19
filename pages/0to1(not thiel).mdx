@@ -1,0 +1,108 @@
+# Drift Protocol: Market Maker & Builder Guide
+
+This guide provides an intro for experienced traders and builders integrating with **Drift Protocol**. It expands on Drift’s architecture, liquidity mechanisms, and Swift Protocol, combining product-level benefits, code insights, and a detailed Swift FAQ.
+
+## 1. Why Drift
+
+Drift has become the **largest perp DEX on Solana**, with over **$100B in trading volume** and more than **$1.5B in deposits**【42†source】. Drift’s vision is to deliver **CEX-quality execution** with **DeFi transparency and guarantees**.  
+
+Key differentiators:
+
+- **Unified Cross-Margin System:** All assets (spot, perp, lending, LP shares) exist within one margin framework. Capital can be reused across positions.  
+- **Deep Multi-Layered Liquidity:** Drift combines **DLOB resting orders, JIT liquidity, AMM reserves, and Swift routing** to maximize fill quality.  
+- **Gasless & Fast Execution:** Through **Swift**, takers trade without paying gas, and makers receive orders instantly via WebSocket.  
+- **Permissionless Access:** Any trader, builder, or market maker can participate.  
+- **Incentivization via DRIFT staking:** Reduced taker fees, maker rebates up to 40%, and priority access to Swift order flow.  
+
+## 2. Order Matching & Auction Design
+
+Drift does not use a centralized matching engine. Instead, orders are matched in a **decentralized auction environment**:
+
+- **Auction Orders:** Every taker order is represented as a Dutch auction curve (start price → end price across a slot duration).  
+- **Liquidity Layers:**  
+  1. **DLOB Resting Orders** – standing limit orders on-chain.  
+  2. **Just-in-Time (JIT) Liquidity** – makers dynamically submit orders reacting to taker flow.  
+  3. **AMM Backstop** – guaranteed fill after ~10 slots if unmatched.  
+- **Keepers & Makers:** Off-chain bots listen to order events and submit transactions to match them. Rewards encourage quick matching.  
+- **First-Come-First-Serve:** The **first valid on-chain tx** that crosses the auction curve executes the trade.  
+
+This design allows Drift to support **fast, fair, and permissionless execution**, while avoiding the costs of centralized matching.  
+
+## 3. Just-in-Time (JIT) Liquidity
+
+JIT is Drift’s most important innovation for makers.  
+
+- **Concept:** Instead of resting orders in the book (exposed to adverse selection), makers can inject orders only when a taker arrives.  
+- **Mechanism:**  
+  - Maker listens for a taker auction.  
+  - Submits tx including both taker order and their JIT maker order.  
+  - Any unfilled maker order is **auto-cancelled atomically**.  
+- **Benefits:**  
+  - **For Takers:** deeper liquidity, lower slippage, better prices.  
+  - **For Makers:** reduced inventory risk, lower exposure to toxic flow.  
+- **Code Insights:**  
+  - Makers often use a **`JitProxy` helper** for atomic fills.  
+  - Error codes like `OrderNotFound` and `Bid/AskNotCrossed` help determine race outcomes.  
+
+In effect, JIT turns Drift into a **reactive liquidity marketplace** where makers compete for flow only when it arrives.  
+
+## 4. Swift Protocol Overview
+
+Swift is Drift’s off-chain order relay system, handling **~50% of total volume**.  
+
+### Workflow
+1. **User signs an order off-chain.**  
+2. **Swift Node publishes it** to all subscribed makers/keepers via WebSocket.  
+3. **Makers decide whether to fill**; the first to land on-chain executes the trade.  
+4. If no one fills, the order is pushed on-chain into the auction/DLOB.  
+
+### Key Properties
+- **No matching window:** Orders are eligible immediately upon broadcast.  
+- **Equivalent to taker orders:** Swift orders are treated as if submitted on-chain.  
+- **Gasless for takers:** Makers pay gas to submit the fill.  
+- **Unified liquidity:** No separate Swift book; all orders settle on-chain.  
+- **Optional routing:** Frontend users default to Swift, but can toggle DLOB.  
+
+Swift’s purpose is **latency reduction** and **ease of integration** for makers.  
+
+## 5. Swift FAQ
+
+**Q: Is there a matching window for Swift orders?**  
+A: No. Orders are sent via WebSocket and are immediately fillable by any maker/keeper who crosses the auction curve.  
+
+**Q: Who wins the fill?**  
+A: First valid on-chain tx wins. Milliseconds matter.  
+
+**Q: Are Swift orders eventually submitted to the DLOB?**  
+A: Swift doesn’t maintain a separate book. If not filled, orders are pushed on-chain and become part of the DLOB.  
+
+**Q: Can Swift handle partial fills?**  
+A: Yes. Example: A 50M SOL order may be 10M filled by one maker, with 40M remaining rendered on-chain.  
+
+**Q: Is Swift separate from JIT?**  
+A: No. Swift is just another propagation layer. Both Swift and JIT fills are treated as taker orders.  
+
+**Q: Can makers place orders on Swift?**  
+A: No. Makers don’t rest orders on Swift. They receive taker orders and respond via `PlaceAndMake`.  
+
+**Q: What happens if no one fills a Swift order?**  
+A: It’s pushed on-chain, where it can interact with the DLOB or AMM.  
+
+**Q: Can Swift orders be canceled?**  
+A: Not directly. Since they’re POSTed to Swift, they either get filled or are pushed to chain. Makers may cancel after on-chain placement.  
+
+**Q: Are limit orders supported?**  
+A: Yes, Swift supports both market and limit-style orders.  
+
+## 6. Incentives & Economics
+
+- **Maker rebates:** DRIFT stakers can receive rebates up to +40%
+- **Taker fees:** Competitive vs other perps DEXs and CEXs.  
+- **Funding rates:** Transparent, determined by perp markets.  
+ 
+This combination ensures **both sides of the market are incentivized** to participate.  
+
+## Integration steps
+
+**In summary:** Drift combines **auctions, JIT liquidity, and Swift** to deliver a permissionless, reactive liquidity marketplace. Market makers gain access to gasless flow and capital-efficient execution, while builders can integrate trading logic directly into Drift’s open system.  
+
