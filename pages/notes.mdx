@@ -1,0 +1,73 @@
+# Order Types
+add price formula 
+- **Market** — executes now at best available price
+- **Limit** — executes at limit price or better
+- **Trigger Market** — market order that activates on trigger
+- **Trigger Limit** — limit order that activates on trigger
+- **Oracle** — market order with oracle-based auction pricing
+
+## Market Orders
+
+- Execute immediately at the best available price
+- Use auction mechanism for price discovery. Default time-in-force is 60 seconds
+- Best for: immediate execution when speed matters more than price
+
+## Limit Orders
+
+- Execute only at the specified price or better
+- Rest in the order book until filled or canceled
+- Can be post-only to ensure maker behavior
+- Best for: price-sensitive trades where you want to avoid slippage
+
+## Trigger Market Orders
+
+- Market order that activates when trigger condition is met
+- Uses oracle price as reference for trigger evaluation
+- Executes immediately upon activation at best available price
+- Best for: stop-loss scenarios where certainty of execution matters
+
+## Trigger Limit Orders
+
+- Limit order that activates when trigger condition is met
+- Uses oracle price as reference for trigger evaluation
+- After activation, behaves as a regular limit order
+- Best for: take-profit scenarios where price control is important
+
+## Oracle Orders
+
+- Market order with oracle-based auction pricing
+- Auction start/end prices derived from oracle price offsets
+- Provides price discovery mechanism for large orders
+- Best for: large orders where you want controlled price discovery
+
+## Trigger Orders: Reference Price & Activation
+
+Trigger orders use the oracle price as the reference for activation. The trigger condition evaluates whether the oracle price is above or below the specified trigger price.
+
+- **Above** — order activates when oracle price > trigger price
+- **Below** — order activates when oracle price < trigger price
+
+After activation, the child order behaves as a Market or Limit order accordingly.
+
+:::warning Upcoming Change
+A trigger-logic update is planned but not yet live. Behavior here reflects production today and will be updated after release.
+:::
+
+## Common Order Options
+
+- **Reduce-Only** — only decreases an existing position
+- **Post-Only** — will not cross the book; cancels/adjusts if it would take
+- **Immediate-or-Cancel (IOC)** — fill what can execute now; cancel the rest
+- **Take Profit (TP)** — triggered order to realize gains
+- **Stop Loss (SL)** — triggered order to cap losses
+- **TP/SL presets** — linked triggers sized by position percentage or fixed amount
+
+## Notes
+- **Stop Limit can miss in fast moves** — use Stop Market if certainty of exit matters more than price
+- **Slippage depends on liquidity/spread/size** — larger orders may experience more slippage
+- **Post-Only guarantees maker behavior** but can cancel if it would cross the book
+- **Trigger orders use oracle price** — not the order book price for activation
+
+## See Also
+
+- **[Market & Limit Orders](/trading/market-and-limit)**
