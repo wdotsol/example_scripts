@@ -53,7 +53,7 @@ async function getExponentYields() {
   }
 }
 
-async function getJlpAprOnline() {
+async function getJlpApr() {
   const idl = await fetchJson<Idl>(IDL_URL);
   const coder = new BorshCoder(idl);
   const info = await conn.getAccountInfo(JLP_POOL);
@@ -79,7 +79,7 @@ async function run() {
     const [sanctum, exponent, jlpApr] = await Promise.all([
       getSanctumYields(),
       getExponentYields(),
-      getJlpAprOnline(),
+      getJlpApr(),
     ]);
 
     const yields: Record<string, number> = {
