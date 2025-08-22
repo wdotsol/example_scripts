@@ -2,7 +2,7 @@ import { Connection, PublicKey } from "@solana/web3.js";
 import { BorshCoder, type Idl } from "@coral-xyz/anchor";
 
 //make sure to add your api / rpc here
-const RPC_URL = process.env.RPC_URL || "https://mainnet.helius-rpc.com/?api-key=key herre";
+const RPC_URL = process.env.RPC_URL || "https://mainnet.helius-rpc.com/?api-key=key here";
 const SANCTUM_ENDPOINT =
   process.env.SANCTUM_ENDPOINT ||
   "https://api here lst=jitoSOL&lst=mSOL&lst=INF&lst=dSOL&lst=dfdvSOL";
