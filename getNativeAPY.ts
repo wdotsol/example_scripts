@@ -5,7 +5,7 @@ import { BorshCoder, type Idl } from "@coral-xyz/anchor";
 const RPC_URL = process.env.RPC_URL || "https://mainnet.helius-rpc.com/?api-key=key here";
 const SANCTUM_ENDPOINT =
   process.env.SANCTUM_ENDPOINT ||
-  "https://api here lst=jitoSOL&lst=mSOL&lst=INF&lst=dSOL&lst=dfdvSOL";
+  "https://extra-api.sanctum.so/v1/apy/latest?lst=jitoSOL&lst=mSOL&lst=INF&lst=dSOL&lst=dfdvSOL";
 const EXPONENT_URL = "https://web-api.exponent.finance/api/markets";
 const JLP_POOL = new PublicKey("5BUwFW4nRbftYTDMbgxykoFWqWHPzahFSNAaaaJtVKsq");
 const IDL_URL =
