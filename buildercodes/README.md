@@ -1,9 +1,8 @@
 ## Dev Quick Start
 
 1. **Read the intro** to understand the system
-2. **Copy the quickstart test** to get a working example
-3. **Use the patterns** for common operations
-4. **Reference the glossary** for type definitions
+2. **Use the patterns** for common operations
+3. **Reference the glossary** for type definitions
 
 All examples and patterns can be found on Github:
 - `protocol-v2-merge-builder/tests/builderCodes.ts` - Test implementations
