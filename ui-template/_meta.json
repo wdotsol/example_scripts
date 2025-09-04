@@ -1,0 +1,9 @@
+{
+  "README": "Introduction",
+  "01-setup": "Setup & Installation", 
+  "02-reading-data": "Reading Data",
+  "03-actions": "Actions & Transactions",
+  "04-patterns": "Utilities",
+  "05-troubleshooting": "Troubleshooting",
+  "99-glossary": "Glossary"
+}
