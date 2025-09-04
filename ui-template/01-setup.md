@@ -64,7 +64,7 @@ Use the pre-configured endpoints from `EnvironmentConstants`:
 import { EnvironmentConstants } from 'drift-common';
 
 const endpoints = EnvironmentConstants.rpcs.mainnet; 
-// [{ label: 'Triton RPC Pool 1', value: 'https://drift-drift-951a.mainnet.rpcpool.com', ... }]
+// [{ label: 'Triton RPC Pool 1', value: '', ... }]
 
 const connection = new Connection(endpoints[0].value);
 ```
