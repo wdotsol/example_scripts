@@ -4,20 +4,22 @@ import { Callout } from "nextra-theme-docs";
 
 Create your own referral link today, and boost your earnings when you refer new users to trade on Drift! For every new user, you will earn a portion of their trading fees!
 
-- Referrers earn 35% of the fees from users they refer.
-- Referred users receive a 5% discount on their trading fees.
+- Referrers earn **35%** of the fees from users they refer.
+- Referred users receive a **5%** discount on their trading fees.
 
 This document will walk you through setting up your referral link to begin earning today.
 
 ### A few notes:
 
-- There is no $ cap to the amount of receivable rewards!
+- There is **no max cap** to the amount of receivable rewards!
 - Rewards for the referrer accrue only from taker volume.
-- Referring users that reach Tier 3 and above (>10m monthly volume) will not generate any referrer rewards or referree discount. 
+- Referring users that reach **tier 3 and above** (>10m monthly volume) will not generate any referrer rewards or referree discount. 
 
 <Callout type="warning" emoji="⚠️">
 The referral link applies solely to *new* Drift accounts created through your link. For it to apply, users must have clicked the link, connected their wallet, and made a deposit within the same session. 
 </Callout>
+
+### Setup
 
 1. First, in order to create your own ref link you must click on the “Overview” tab inside the Drift app. Once there you will want to scroll down to where it says “Referrals”.
 
