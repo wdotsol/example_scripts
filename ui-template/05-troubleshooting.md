@@ -12,20 +12,6 @@ import { Initialize } from 'drift-common';
 Initialize('mainnet-beta'); // or 'devnet'
 ```
 
-### Invalid DriftEnv
-```
-TypeError: Cannot read properties of undefined (reading 'SPOT_MARKETS')
-```
-**Fix:** Use valid environment strings:
-```typescript
-// ✅ Correct
-Initialize('mainnet-beta');
-Initialize('devnet');
-
-// ❌ Wrong  
-Initialize('mainnet'); // should be 'mainnet-beta'
-```
-
 ### Missing market config
 ```
 TypeError: Cannot read properties of undefined (reading 'symbol')
@@ -49,13 +35,13 @@ TypeError: baseAssetAmount.toNum is not a function
 ```typescript
 // BN (from @drift-labs/sdk)
 const bn = new BN('1000000');
-bn.toString(); // ✅
-bn.toNumber(); // ✅ (if small enough)
+bn.toString(); // 
+bn.toNumber(); // (if small enough)
 
 // BigNum (drift-common)
 const bigNum = BigNum.from(bn, 6);
-bigNum.toNum(); // ✅
-bigNum.print(); // ✅
+bigNum.toNum(); // 
+bigNum.print(); // 
 ```
 
 ### Enum comparison errors
@@ -63,11 +49,7 @@ bigNum.print(); // ✅
 TypeError: Cannot read properties of undefined (reading 'long')
 ```
 **Fix:** Use `ENUM_UTILS.match()` for enum comparisons:
-```typescript
-// ❌ Wrong
-if (position.direction === PositionDirection.LONG)
-
-// ✅ Correct  
+```typescript  
 import { ENUM_UTILS } from 'drift-common';
 if (ENUM_UTILS.match(position.direction, PositionDirection.LONG))
 ```
@@ -106,10 +88,6 @@ RangeError: Maximum call stack size exceeded
 ```
 **Fix:** Use appropriate precision for calculations:
 ```typescript
-// ❌ Wrong - precision too high
-const result = BigNum.from(amount, 20);
-
-// ✅ Correct - use standard precisions
 const result = BigNum.from(amount, PRICE_PRECISION_EXP); // 6
 ```
 
