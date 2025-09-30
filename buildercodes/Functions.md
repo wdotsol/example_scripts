@@ -1,67 +1,50 @@
-# Core Functions
 
-## Attach Builder Code to Order
 
-Include builder index and fee in order parameters.
+## Builder initialization
 
-```typescript
-const takerOrderParamsMessage: SignedMsgOrderParamsMessage = {
-    signedMsgOrderParams: orderParams,
-    subAccountId: 0,
-    slot,
-    uuid: Uint8Array.from(Buffer.from(nanoid(8))),
-    builderIdx: 0,                    // Index of approved builder
-    builderFeeTenthBps: 70,           // 0.7% fee (70 * 0.01%)
-    takeProfitOrderParams: null,
-    stopLossOrderParams: null,
-};
+```ts
+await builderDriftClient.initializeRevenueShare(builderAuthority)
 ```
 
-## Switch Builder Accounts
+Builders must initialize a `RevenueShare` account before they are able to accrue builder fees.
 
-Change which builder receives fees for future orders.
+## User initialization
 
-```typescript
-// Remove current builder
-await userClient.changeApprovedBuilder(
-    userClient.wallet.publicKey,
-    builderA.publicKey,
-    0,        // Set max fee to 0
-    false     // Remove
-);
+### BuilderShareEscrow Account
 
-// Add new builder
-await userClient.changeApprovedBuilder(
-    userClient.wallet.publicKey,
-    builderB.publicKey,
-    150,      // 1.5% max fee
-    true      // Add
-);
+```ts
+await takerClient.initializeRevenueShareEscrow(takerAuthority, numOrders)
 ```
 
-## Revoke/Change Builder Permissions
+Each taker/user must initialize a `BuilderShareEscrow` account before they are able to start paying builder fees. In practice this is an on boarding step provided by the builder. 
 
-Update fee limits or remove builder access.
+`numOrders` should be large enough to hold all open orders that the taker will have at any point.
 
-```typescript
-// Update fee limit
-await userClient.changeApprovedBuilder(
-    userClient.wallet.publicKey,
-    builder.publicKey,
-    200,      // Increase from 150 to 200
-    true      // Update existing
-);
+### Builder approval
 
-// Remove builder (fails if open orders exist)
-try {
-    await userClient.changeApprovedBuilder(
-        userClient.wallet.publicKey,
-        builder.publicKey,
-        0,
-        false
-    );
-} catch (e) {
-    assert(e.message.includes('0x18b3')); // CannotRevokeBuilderWithOpenOrders
-}
+```ts
+// 200 = 20 bps max fee
+await takerClient.changeApprovedBuilder(builderAuthority, 200, true)
 ```
 
+Each taker must approve every builder with their max payable fee before builder fees can be charged. The max fee is expressed in tenth of a basis point (100 = 10 bps).
+
+## Order placement
+
+Buildercodes function through Swift, this is achieved by setting the builderIdx and builderFee in the signed message sent to the swift server.
+
+```typescript
+const orderMessage: SignedMsgOrderParamsMessage = {
+        signedMsgOrderParams: marketOrderParams as OrderParams,
+        subAccountId: takerClient.activeSubAccountId,
+        slot: new BN(slot + 100),
+        uuid: generateSignedMsgUuid(),
+        stopLossOrderParams: null,
+        takeProfitOrderParams: null,
+
+        /// The builder's UI must include these 2 fields
+        /// in order to append a builder fee.
+        builderIdx: 0,          // the builder is idx 0 on the taker's RevenueShareEscrow.approved_builders list
+        builderFeeTenthBps: 50, // builder fee on this order: 5 bps
+    };
+```
