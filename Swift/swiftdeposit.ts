@@ -77,7 +77,6 @@ const depositTx = drift.buildSwiftDepositTx(
 	false, // initSwiftAccount, use this if you want to initialize a Swift account
 );
 
-
 // Build the request
 const request = driftClient.buildDepositAndPlaceSignedMsgOrderRequest(depositTx, message);
 
