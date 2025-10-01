@@ -19,37 +19,23 @@ if (!rpcUrl) {
 }
 const connection = new Connection(rpcUrl);
 
-// Init driftClient with dummy wallet, default subscription is ws
+//1. Init driftClient with dummy wallet, default subscription is ws
 const driftClient = new DriftClient({
 	connection,
 	wallet: new Wallet(Keypair.generate()),
     env: 'mainnet-beta',
 });
 
-const marketIndex = 0 // market index 0 for USDC
-const amount = driftClient.convertToSpotPrecision(marketIndex, 100); // $100
-const associatedTokenAccount = await driftClient.getAssociatedTokenAccount(marketIndex); // market index 0 for USDC
+//2. Set up the Swift order
+const marketIndex = 0; // 0 = SOL-PERP market
 
-const depositTx = await driftClient.createDepositTxn(
-    amount,
-    marketIndex,
-    associatedTokenAccount,
-    undefined,   // subAccountId? - Optional
-    false,       // reduceOnly
-    undefined,   // txParams? - Optional
-    true         // initSwiftAccount, Use this if you want to initialize a Swift account
-  );
-
-// Set up the Swift order
-const marketIndexSwift = 0; // 0 = SOL-PERP market
-
-const oracleInfo = driftClient.getOracleDataForPerpMarket(marketIndexSwift);
+const oracleInfo = driftClient.getOracleDataForPerpMarket(marketIndex);
 const highPrice = oracleInfo.price.muln(101).divn(100);
 const lowPrice = oracleInfo.price;
 const direction = PositionDirection.LONG;
 
 const orderParams = getMarketOrderParams({
-    marketIndex: marketIndexSwift,
+    marketIndex: marketIndex,
     marketType: MarketType.PERP,
     direction,
     baseAssetAmount: driftClient.convertToPerpPrecision(0.1), // 0.1 SOL,
@@ -69,8 +55,28 @@ const orderMessage = {
     takeProfitOrderParams: null,
 };
 
-// Sign the message
+// Sign the orderParams message
 const { orderParams: message, signature } = driftClient.signSignedMsgOrderParamsMessage(orderMessage);
+
+// 3. Build the deposit tx
+const takerATA = await driftClient.getAssociatedTokenAccount(marketIndex); // market index 0 for USDC
+
+const depositTx = drift.buildSwiftDepositTx(
+  message,
+  {
+		taker: await drift.getUserAccountPublicKey(subAccountId), // subAccountId 0
+		takerStats: drift.getUserStatsAccountPublicKey(),
+		takerUserAccount: drift.getUserAccount(subAccountId),
+		signingAuthority: drift.wallet.publicKey,
+	},
+	new BN(1_000_000), // deposit amount
+	0, // spot market for deposit (USDC)
+	marketIndex, // perp market for trade (SOL perp)
+	subAccountId, // subAccountId,
+	takerATA,
+	false, // initSwiftAccount, use this if you want to initialize a Swift account
+);
+
 
 // Build the request
 const request = driftClient.buildDepositAndPlaceSignedMsgOrderRequest(depositTx, message);
