@@ -1,0 +1,18 @@
+{
+  "name": "nt-dsol-swap",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "ts-node swap.ts"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "0.29.0",
+    "@drift-labs/sdk": "stable",
+    "@solana/web3.js": "^1.95.3",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}
