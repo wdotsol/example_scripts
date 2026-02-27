@@ -1,21 +1,20 @@
 // NT vault dSOL → SOL swap script
 // No PRIVATE_KEY = scan mode (logs quotes + slippage, no swaps).
 //
-// Usage: cd sdk && RPC_ENDPOINT=... VAULT_AUTHORITY=... [PRIVATE_KEY='[...]'] npx ts-node scripts/nt-dsol-swap.ts
+// Usage: npm start
 
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
 import dotenv from 'dotenv';
 import { BN } from '@coral-xyz/anchor';
-import { DRIFT_PROGRAM_ID, Wallet, UnifiedSwapClient, WRAPPED_SOL_MINT, MainnetSpotMarkets } from '../src';
-import { DriftClient } from '../src/driftClient';
+import { DRIFT_PROGRAM_ID, Wallet, UnifiedSwapClient, WRAPPED_SOL_MINT, MainnetSpotMarkets, DriftClient } from '@drift-labs/sdk';
 
-dotenv.config({ path: '../.env' });
+dotenv.config();
 
 const RPC_ENDPOINT    = process.env.RPC_ENDPOINT!;
 const VAULT_AUTHORITY = process.env.VAULT_AUTHORITY!;
 const PRIVATE_KEY     = process.env.PRIVATE_KEY;      // omit for scan mode
-const JUPITER_API_KEY = process.env.JUPITER_API_KEY!; // required — free key at portal.jup.ag
-const JUPITER_URL     = process.env.JUPITER_URL;      // optional, defaults to api.jup.ag/swap
+const JUPITER_API_KEY = process.env.JUPITER_API_KEY!;
+const JUPITER_URL     = process.env.JUPITER_URL;
 
 const MAX_SLIPPAGE_BPS = Number(process.env.MAX_SLIPPAGE_BPS ?? '20');
 const CHUNK_SIZE_DSOL  = Number(process.env.CHUNK_SIZE_DSOL  ?? '500');
